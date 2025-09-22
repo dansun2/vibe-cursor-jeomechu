@@ -94,13 +94,13 @@ export const useLunchSession = () => {
           : buildMenuCandidatesByCategory(pickedCategory, session.maxCandidates || 5);
 
       if (session.rouletteMode === 'categoryOnly') {
-        // 바로 투표로 이동
+        // 바로 투표로 이동: 후보는 rouletteResult로 세팅
         const nextSession: LunchSession = {
           ...session,
-          mode: 'voting',
+          mode: 'rouletteMenu',
           selectedCategory: pickedCategory,
           candidates: nextCandidates,
-          rouletteResult: nextCandidates,
+          rouletteResult: [],
           currentSelectionId: null,
           completedVoters: 0,
           lastSpinTargetId: `cat:${pickedCategory}`,
@@ -213,6 +213,20 @@ export const useLunchSession = () => {
     return initialSession;
   };
 
+  const startVotingWithCandidates = (candidates: LunchSession['candidates']) => {
+    const session = loadSession();
+    const newSession: LunchSession = {
+      ...session,
+      mode: 'voting',
+      candidates,
+      rouletteResult: candidates,
+      currentSelectionId: null,
+      completedVoters: 0,
+    };
+    saveSession(newSession);
+    return newSession;
+  };
+
   return {
     loadSession,
     saveSession,
@@ -222,5 +236,6 @@ export const useLunchSession = () => {
     confirmCurrentVoter,
     resetVotingState,
     resetSession,
+    startVotingWithCandidates,
   };
 };

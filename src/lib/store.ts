@@ -12,6 +12,7 @@ interface LunchStore {
     resetVotingState: () => LunchSession;
     resetSession: () => LunchSession;
     refreshSession: () => void;
+    startVotingWithCandidates: (candidates: LunchSession['candidates']) => LunchSession;
   };
 }
 
@@ -23,7 +24,7 @@ export const useLunchStore = create<LunchStore>((set, get) => ({
     votes: [],
     sessionId: Date.now().toString()
   },
-  
+
   actions: {
     startSession: (input: StartFormInput) => {
       const { startSession } = useLunchSession();
@@ -31,14 +32,14 @@ export const useLunchStore = create<LunchStore>((set, get) => ({
       set({ session: newSession });
       return newSession;
     },
-    
+
     runRoulette: () => {
       const { runRoulette } = useLunchSession();
       const newSession = runRoulette();
       set({ session: newSession });
       return newSession;
     },
-    
+
     selectCandidate: (restaurantId: string) => {
       const { selectCandidate } = useLunchSession();
       const newSession = selectCandidate(restaurantId);
@@ -53,6 +54,7 @@ export const useLunchStore = create<LunchStore>((set, get) => ({
       return newSession;
     },
 
+
     resetVotingState: () => {
       const { resetVotingState } = useLunchSession();
       const newSession = resetVotingState();
@@ -66,11 +68,18 @@ export const useLunchStore = create<LunchStore>((set, get) => ({
       set({ session: newSession });
       return newSession;
     },
-    
+
     refreshSession: () => {
       const { loadSession } = useLunchSession();
       const currentSession = loadSession();
       set({ session: currentSession });
+    },
+
+    startVotingWithCandidates: (candidates) => {
+      const { startVotingWithCandidates } = useLunchSession();
+      const newSession = startVotingWithCandidates(candidates);
+      set({ session: newSession });
+      return newSession;
     }
   }
 }));
