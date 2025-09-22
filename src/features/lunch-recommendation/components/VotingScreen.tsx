@@ -77,14 +77,14 @@ export const VotingScreen = () => {
   return (
     <div className="space-y-8">
       <div className="text-center">
-        <h2 className="text-2xl font-bold mb-2">투표 진행 중</h2>
-        <p className="text-gray-600 mb-4">메뉴를 선택하고 투표해주세요</p>
+        <h2 className="text-2xl font-bold mb-2 text-orange-600">투표 진행 중</h2>
+        <p className="text-gray-600 mb-4">메뉴를 선택하고 <span className="text-orange-600">투표</span>해주세요</p>
         
         {/* 공유 버튼 */}
         <Button
           variant="outline"
           onClick={copyShareLink}
-          className="mb-4"
+          className="mb-4 border-orange-300 text-orange-600 hover:bg-orange-50"
         >
           🔗 링크 복사하기
         </Button>
@@ -96,7 +96,7 @@ export const VotingScreen = () => {
           <Card 
             key={restaurant.id} 
             className={`p-4 cursor-pointer transition-all ${
-              selectedRestaurant === restaurant.id ? 'ring-2 ring-blue-500' : ''
+              selectedRestaurant === restaurant.id ? 'ring-2 ring-orange-500' : ''
             }`}
             onClick={() => handleSelect(restaurant.id)}
           >
@@ -115,7 +115,7 @@ export const VotingScreen = () => {
             {/* 실시간 투표 바 */}
             <div className="mt-2 bg-gray-200 rounded-full h-2">
               <motion.div 
-                className="bg-blue-500 h-2 rounded-full"
+                className="bg-orange-500 h-2 rounded-full"
                 initial={{ width: 0 }}
                 animate={{ width: `${getVotePercentage(restaurant.id)}%` }}
                 transition={{ duration: 0.5 }}
@@ -131,7 +131,7 @@ export const VotingScreen = () => {
           size="lg"
           onClick={handleConfirm}
           disabled={!selectedRestaurant}
-          className="bg-green-500 hover:bg-green-600"
+          className="bg-orange-500 hover:bg-orange-600 text-white disabled:opacity-50"
         >
           현재 선택 확정
         </Button>

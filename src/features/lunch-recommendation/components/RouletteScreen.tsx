@@ -155,7 +155,7 @@ export const RouletteScreen = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8">
-      <h2 className="text-2xl font-bold text-center">후보 선정 중...</h2>
+      <h2 className="text-2xl font-bold text-center text-orange-600">후보 선정 중...</h2>
 
       <div className="relative w-80 h-80 select-none">
         <canvas
@@ -170,7 +170,7 @@ export const RouletteScreen = () => {
 
         {/* 룰렛 화살표 */}
         <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2">
-          <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-red-500" />
+          <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-orange-500" />
         </div>
       </div>
 
@@ -178,7 +178,7 @@ export const RouletteScreen = () => {
         size="lg"
         onClick={spinRoulette}
         disabled={isSpinning}
-        className="bg-blue-500 hover:bg-blue-600"
+        className="bg-orange-500 hover:bg-orange-600 text-white"
       >
         {isSpinning ? '룰렛 돌리는 중...' : '룰렛 돌리기'}
       </Button>

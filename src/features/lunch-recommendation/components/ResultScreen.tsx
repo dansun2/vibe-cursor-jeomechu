@@ -56,7 +56,6 @@ export const ResultScreen = () => {
 
   return (
     <div className="space-y-8">
-      {/* 승자 발표 */}
       <div className="text-center">
         <motion.div
           initial={{ scale: 0 }}
@@ -64,12 +63,12 @@ export const ResultScreen = () => {
           transition={{ delay: 0.5, type: "spring" }}
           className="mb-4"
         >
-          🎉
+          <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-orange-100 text-orange-600">🎉</span>
         </motion.div>
         <h2 className="text-4xl font-bold text-gray-900 mb-2">
           오늘 점심은
         </h2>
-        <h1 className="text-5xl font-bold text-red-500 mb-4">
+        <h1 className="text-5xl font-bold text-orange-600 mb-4">
           {session.finalResult.name}
         </h1>
         <p className="text-xl text-gray-600">
@@ -93,10 +92,9 @@ export const ResultScreen = () => {
         </div>
       </Card>
 
-      {/* 전체 결과 */}
       <div>
         <h3 className="text-xl font-semibold mb-4">전체 투표 결과</h3>
-        <div className="mb-4 p-3 bg-blue-50 rounded">
+        <div className="mb-4 p-3 bg-orange-50 rounded">
           <p className="text-sm text-blue-700">
             전체 인원: {session.participants || 1}명 | 
             완료된 투표: {session.completedVoters || 0}명 | 
@@ -115,7 +113,7 @@ export const ResultScreen = () => {
                   <span>{votes}표</span>
                   <div className="w-24 bg-gray-200 rounded-full h-2">
                     <div 
-                      className="bg-blue-500 h-2 rounded-full"
+                      className="bg-orange-500 h-2 rounded-full"
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
@@ -134,14 +132,14 @@ export const ResultScreen = () => {
         <Button
           size="lg"
           onClick={handleRevote}
-          className="bg-blue-500 hover:bg-blue-600"
+          className="bg-orange-500 hover:bg-orange-600 text-white"
         >
           다시 투표하기
         </Button>
         <Button
           size="lg"
           onClick={handleReset}
-          className="bg-gray-500 hover:bg-gray-600"
+          className="bg-gray-600 hover:bg-gray-700 text-white"
         >
           다시 추천받기
         </Button>
@@ -149,6 +147,7 @@ export const ResultScreen = () => {
           size="lg"
           onClick={handleExportCSV}
           variant="outline"
+          className="border-orange-300 text-orange-600 hover:bg-orange-50"
         >
           CSV 다운로드
         </Button>

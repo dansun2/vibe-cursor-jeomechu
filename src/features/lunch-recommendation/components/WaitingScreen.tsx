@@ -36,17 +36,17 @@ export const WaitingScreen = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8">
       <div className="text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">
+        <h2 className="text-3xl font-bold text-orange-600 mb-4">
           점심 메뉴를 추천받아보세요
         </h2>
         <p className="text-gray-600">
-          룰렛으로 후보를 선정하고 투표를 통해 최종 메뉴를 결정하세요
+          룰렛으로 후보를 선정하고 투표를 통해 <span className="text-orange-600">최종 메뉴</span>를 결정하세요
         </p>
       </div>
 
       <div className="w-full max-w-xl space-y-6">
         <div>
-          <Label htmlFor="address">주소</Label>
+          <Label htmlFor="address" className="text-gray-800">주소</Label>
           <Input
             id="address"
             type="text"
@@ -57,7 +57,7 @@ export const WaitingScreen = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="participants">인원수</Label>
+            <Label htmlFor="participants" className="text-gray-800">인원수</Label>
             <Input
               id="participants"
               type="number"
@@ -71,13 +71,13 @@ export const WaitingScreen = () => {
         {/* 카테고리 선택 UI 제거 (기본 카테고리 사용) */}
 
         <div>
-          <Label>룰렛 모드</Label>
+          <Label className="text-gray-800">룰렛 모드</Label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
             {([
               { key: 'categoryOnly', label: '카테고리만 룰렛' },
               { key: 'categoryAndMenu', label: '카테고리 → 메뉴 룰렛' },
             ] as { key: RouletteMode; label: string }[]).map(({ key, label }) => (
-              <label key={key} className="flex items-center space-x-2 p-2 rounded border cursor-pointer">
+              <label key={key} className={`flex items-center space-x-2 p-2 rounded border cursor-pointer ${rouletteMode === key ? 'border-orange-400 bg-orange-50' : ''}`}>
                 <Checkbox
                   checked={rouletteMode === key}
                   onCheckedChange={() => setRouletteMode(key)}
@@ -92,7 +92,7 @@ export const WaitingScreen = () => {
       
       <Button
         size="lg"
-        className="bg-red-500 hover:bg-red-600 text-white px-8 py-4 text-lg"
+        className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 text-lg"
         onClick={handleStart}
       >
         시작하기

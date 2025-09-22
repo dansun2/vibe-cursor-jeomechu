@@ -73,10 +73,10 @@ export const RecommendScreen = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">추천 식당 TOP 3</h2>
+        <h2 className="text-2xl font-bold text-orange-600">추천 식당 TOP 3</h2>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={refetch}>새로고침</Button>
-          <Button onClick={pushTop3ToVote} disabled={loading || top3.length === 0} className="bg-green-600 hover:bg-green-700">이 후보로 투표하기</Button>
+          <Button variant="outline" className="border-orange-300 text-orange-600 hover:bg-orange-50" onClick={refetch}>새로고침</Button>
+          <Button onClick={pushTop3ToVote} disabled={loading || top3.length === 0} className="bg-orange-500 hover:bg-orange-600 text-white">이 후보로 투표하기</Button>
         </div>
       </div>
 
@@ -85,23 +85,23 @@ export const RecommendScreen = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {top3.map((p) => (
-          <Card key={p.id} className="p-4 space-y-3">
+          <Card key={p.id} className="p-4 space-y-3 border-orange-100 hover:shadow-sm transition-shadow">
             <img
               src={(p as any).imageUrl}
               alt={p.name}
               className="w-full h-40 object-cover rounded"
             />
             <div className="space-y-1">
-              <div className="text-lg font-semibold">{p.name}</div>
+              <div className="text-lg font-semibold text-gray-900">{p.name}</div>
               <div className="text-sm text-gray-600">{p.roadAddress || p.address}</div>
-              <div className="text-sm text-gray-500">⭐ {(p as any).rating} · {p.distanceMeters ?? '?'}m</div>
+              <div className="text-sm text-gray-500">⭐ <span className="text-orange-600 font-medium">{(p as any).rating}</span> · {p.distanceMeters ?? '?'}m</div>
             </div>
             {p.url && (
               <a
                 href={p.url}
                 target="_blank"
                 rel="noreferrer"
-                className="text-blue-600 text-sm underline"
+                className="text-orange-600 text-sm underline"
               >
                 카카오 상세 보기
               </a>
@@ -111,7 +111,7 @@ export const RecommendScreen = () => {
       </div>
 
       {!loading && top3.length === 0 && (
-        <div className="text-gray-600">주변에서 식당을 찾지 못했어요. 반경을 넓혀보세요.</div>
+        <div className="text-gray-600">주변에서 식당을 찾지 못했어요. <span className="text-orange-600">반경을 넓혀보세요.</span></div>
       )}
     </div>
   );
