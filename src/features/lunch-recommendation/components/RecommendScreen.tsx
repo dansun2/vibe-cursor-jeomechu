@@ -30,9 +30,11 @@ export const RecommendScreen = () => {
   const { session, actions } = useLunchStore();
   const router = useRouter();
   const address = session.address || '';
-  const selectedCategoryLabel = session.selectedCategory ? getCategoryLabel(session.selectedCategory) : undefined;
+  const selectedCategoryLabel = session.selectedCategory && session.selectedCategory !== 'etc'
+    ? getCategoryLabel(session.selectedCategory)
+    : undefined; // 기타는 키워드 미전달 → 일반 음식점 검색
 
-  // FD6(음식점) + 선택 카테고리 라벨 키워드로 실제 데이터 검색
+  // FD6(음식점) + 선택 카테고리 라벨 키워드(기타 제외)로 실제 데이터 검색
   const { data, loading, error, refetch } = useKakaoRestaurants({
     address,
     category: 'FD6',

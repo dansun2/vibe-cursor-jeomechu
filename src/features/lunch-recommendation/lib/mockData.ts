@@ -80,6 +80,6 @@ export const ALL_CATEGORIES: LunchCategory[] = [
   'japanese',
   'chinese',
   'western',
-  'dessert',
+  // 'dessert' 제외
   'etc',
 ];
