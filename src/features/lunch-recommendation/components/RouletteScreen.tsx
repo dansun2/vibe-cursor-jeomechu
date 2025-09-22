@@ -6,9 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useLunchStore } from '@/lib/store';
 import { Restaurant } from '../types';
+import { useRouter } from 'next/navigation';
 
 export const RouletteScreen = () => {
   const { session, actions } = useLunchStore();
+  const router = useRouter();
   const [isSpinning, setIsSpinning] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
 
@@ -21,9 +23,15 @@ export const RouletteScreen = () => {
     // 룰렛 애니메이션 시간
     await new Promise(resolve => setTimeout(resolve, 3000));
     
-    // 최종 후보 선택
-    actions.completeRoulette();
+    // 최종 후보 선택 및 전이
+    const newSession = actions.runRoulette();
     setIsSpinning(false);
+    // 새로운 상태 기준으로 라우팅
+    if (newSession.mode === 'result' || (newSession.rouletteResult?.length ?? 0) <= 1) {
+      router.push('/result');
+    } else {
+      router.push('/vote');
+    }
   };
 
   const getRouletteAngle = (index: number) => {

@@ -6,18 +6,23 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useLunchStore } from '@/lib/store';
 import { Restaurant } from '../types';
+import { useRouter } from 'next/navigation';
 
 export const VotingScreen = () => {
   const { session, actions } = useLunchStore();
+  const router = useRouter();
   const [selectedRestaurant, setSelectedRestaurant] = useState<string>('');
 
-  const handleVote = (restaurantId: string) => {
-    setSelectedRestaurant(restaurantId);
-    actions.castVote(restaurantId);
+  const handleSelect = (restaurantId: string) => {
+    setSelectedRestaurant(prev => (prev === restaurantId ? '' : restaurantId));
+    actions.selectCandidate(restaurantId);
   };
 
-  const handleEndVoting = () => {
-    actions.endVoting();
+  const handleConfirm = () => {
+    const newSession = actions.confirmCurrentVoter();
+    if (newSession.mode === 'result') {
+      router.push('/result');
+    }
   };
 
   const getVoteCount = (restaurantId: string) => {
@@ -49,7 +54,7 @@ export const VotingScreen = () => {
             className={`p-4 cursor-pointer transition-all ${
               selectedRestaurant === restaurant.id ? 'ring-2 ring-blue-500' : ''
             }`}
-            onClick={() => handleVote(restaurant.id)}
+            onClick={() => handleSelect(restaurant.id)}
           >
             <img 
               src={restaurant.imageUrl} 
@@ -76,23 +81,16 @@ export const VotingScreen = () => {
         ))}
       </div>
 
-      {/* QR 코드와 투표 링크 (실제로는 QR 코드 라이브러리 사용) */}
-      <div className="text-center">
-        <div className="bg-gray-100 p-4 rounded-lg inline-block">
-          <p className="text-sm text-gray-600 mb-2">참여자들이 투표하려면:</p>
-          <p className="font-mono text-xs bg-white p-2 rounded border">
-            {window?.location?.href || '현재 페이지 URL'}
-          </p>
-        </div>
-      </div>
+      {/* v0: 단일 디바이스 순차 투표. 외부 링크/QR 미사용 */}
 
       <div className="text-center">
         <Button
           size="lg"
-          onClick={handleEndVoting}
+          onClick={handleConfirm}
+          disabled={!selectedRestaurant}
           className="bg-green-500 hover:bg-green-600"
         >
-          투표 종료
+          현재 선택 확정
         </Button>
       </div>
     </div>

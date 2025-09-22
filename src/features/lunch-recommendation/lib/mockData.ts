@@ -1,4 +1,4 @@
-import { Restaurant } from '../types';
+import { LunchCategory, Restaurant } from '../types';
 
 export const MOCK_RESTAURANTS: Restaurant[] = [
   {
@@ -7,7 +7,8 @@ export const MOCK_RESTAURANTS: Restaurant[] = [
     description: '신선한 재료로 만든 정통 김밥',
     imageUrl: 'https://picsum.photos/300/200?random=1',
     rating: 4.2,
-    address: '서울시 강남구 역삼동'
+    address: '서울시 강남구 역삼동',
+    category: 'korean'
   },
   {
     id: '2',
@@ -15,7 +16,8 @@ export const MOCK_RESTAURANTS: Restaurant[] = [
     description: '바삭한 치킨과 사이드 메뉴',
     imageUrl: 'https://picsum.photos/300/200?random=2',
     rating: 4.0,
-    address: '서울시 강남구 역삼동'
+    address: '서울시 강남구 역삼동',
+    category: 'western'
   },
   {
     id: '3',
@@ -23,7 +25,8 @@ export const MOCK_RESTAURANTS: Restaurant[] = [
     description: '프리미엄 커피와 디저트',
     imageUrl: 'https://picsum.photos/300/200?random=3',
     rating: 4.3,
-    address: '서울시 강남구 역삼동'
+    address: '서울시 강남구 역삼동',
+    category: 'dessert'
   },
   {
     id: '4',
@@ -31,7 +34,8 @@ export const MOCK_RESTAURANTS: Restaurant[] = [
     description: '갓 구운 빵과 케이크',
     imageUrl: 'https://picsum.photos/300/200?random=4',
     rating: 4.1,
-    address: '서울시 강남구 역삼동'
+    address: '서울시 강남구 역삼동',
+    category: 'dessert'
   },
   {
     id: '5',
@@ -39,7 +43,8 @@ export const MOCK_RESTAURANTS: Restaurant[] = [
     description: '시원한 빙수와 디저트',
     imageUrl: 'https://picsum.photos/300/200?random=5',
     rating: 4.4,
-    address: '서울시 강남구 역삼동'
+    address: '서울시 강남구 역삼동',
+    category: 'dessert'
   },
   {
     id: '6',
@@ -47,7 +52,8 @@ export const MOCK_RESTAURANTS: Restaurant[] = [
     description: '정갈한 한정식',
     imageUrl: 'https://picsum.photos/300/200?random=6',
     rating: 4.5,
-    address: '서울시 강남구 역삼동'
+    address: '서울시 강남구 역삼동',
+    category: 'korean'
   }
 ];
 
@@ -58,3 +64,12 @@ export const generateMockVotes = (restaurantIds: string[]): Record<string, numbe
   });
   return mockVotes;
 };
+
+export const ALL_CATEGORIES: LunchCategory[] = [
+  'korean',
+  'japanese',
+  'chinese',
+  'western',
+  'dessert',
+  'etc',
+];
