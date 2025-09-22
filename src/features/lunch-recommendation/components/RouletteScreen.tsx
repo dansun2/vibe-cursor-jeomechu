@@ -138,7 +138,8 @@ export const RouletteScreen = () => {
     if (!newSession) return;
     // 다음 단계별 라우팅
     if (newSession.mode === 'rouletteMenu') {
-      // 메뉴 룰렛 단계로 진입: 같은 화면에서 사용자가 한 번 더 스핀
+      // 카테고리 확정 직후 추천 페이지로 이동하여 실데이터 TOP3 노출
+      router.push('/recommend');
       return;
     }
     if (newSession.mode === 'voting') {
@@ -146,7 +147,8 @@ export const RouletteScreen = () => {
       return;
     }
     if (newSession.mode === 'result') {
-      router.push('/result');
+      // 기존 결과 페이지 대신 추천 페이지로 이동하여 TOP3 노출
+      router.push('/recommend');
       return;
     }
   };
@@ -154,7 +156,7 @@ export const RouletteScreen = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8">
       <h2 className="text-2xl font-bold text-center">후보 선정 중...</h2>
-      
+
       <div className="relative w-80 h-80 select-none">
         <canvas
           ref={canvasRef}
@@ -171,7 +173,7 @@ export const RouletteScreen = () => {
           <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-red-500" />
         </div>
       </div>
-      
+
       <Button
         size="lg"
         onClick={spinRoulette}
