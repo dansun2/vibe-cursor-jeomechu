@@ -2,6 +2,7 @@
 
 import { StartFormInput, LunchSession, LunchCategory } from '../types';
 import { buildCandidates, buildCategoryCandidates, buildMenuCandidatesByCategory, confirmVote, finalizeResult, pickOne, shouldFinishVoting, spinRoulette, toggleCurrentSelection } from '../lib/lunchLogic';
+import { getCategoryLabel } from '../lib/mockData';
 
 const STORAGE_KEY = 'lunch-session';
 
@@ -50,7 +51,7 @@ export const useLunchSession = () => {
       mode: 'rouletteCategory',
       candidates: cats.map(c => ({
         id: `cat:${c}`,
-        name: c,
+        name: getCategoryLabel(c),
         description: '',
         imageUrl: 'https://picsum.photos/300/200?random=101',
         rating: 0,
@@ -92,6 +93,7 @@ export const useLunchSession = () => {
           rouletteResult: nextCandidates,
           currentSelectionId: null,
           completedVoters: 0,
+          lastSpinTargetId: `cat:${pickedCategory}`,
         };
         saveSession(nextSession);
         return nextSession;
@@ -104,6 +106,7 @@ export const useLunchSession = () => {
         selectedCategory: pickedCategory,
         candidates: nextCandidates,
         rouletteResult: [],
+        lastSpinTargetId: `cat:${pickedCategory}`,
       };
       saveSession(nextSession);
       return nextSession;
@@ -111,23 +114,14 @@ export const useLunchSession = () => {
 
     // 2) 메뉴 단계 → 투표/결과
     if (session.mode === 'rouletteMenu') {
-      const result = spinRoulette(session.candidates);
-      if (!Array.isArray(result)) {
-        const nextSession: LunchSession = {
-          ...session,
-          mode: 'result',
-          finalResult: result,
-          rouletteResult: [result],
-        };
-        saveSession(nextSession);
-        return nextSession;
-      }
+      // v1 스펙: 메뉴 단계에서는 단일 최종 당첨으로 바로 결과 페이지
+      const result = pickOne(session.candidates);
       const nextSession: LunchSession = {
         ...session,
-        mode: 'voting',
-        rouletteResult: result,
-        currentSelectionId: null,
-        completedVoters: 0,
+        mode: 'result',
+        finalResult: result,
+        rouletteResult: [result],
+        lastSpinTargetId: result.id,
       };
       saveSession(nextSession);
       return nextSession;

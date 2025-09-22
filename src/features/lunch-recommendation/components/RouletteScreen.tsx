@@ -28,8 +28,11 @@ export const RouletteScreen = () => {
     const anglePer = 360 / Math.max(1, baseCandidates.length);
 
     // 타깃 인덱스 계산
-    const targetId =
-      nextSession.mode === 'result'
+    // 베이스 후보가 카테고리(예: id가 'cat:'로 시작)라면 새 세션의 lastSpinTargetId를 사용
+    const baseLooksCategory = (baseCandidates[0]?.id || '').startsWith('cat:');
+    const targetId = baseLooksCategory
+      ? (nextSession.lastSpinTargetId ?? baseCandidates[0]?.id)
+      : nextSession.mode === 'result'
         ? nextSession.finalResult?.id
         : nextSession.mode === 'voting' && nextSession.rouletteResult.length > 0
           ? nextSession.rouletteResult[0]?.id
@@ -133,10 +136,18 @@ export const RouletteScreen = () => {
     const newSession = pendingSessionRef.current;
     pendingSessionRef.current = null;
     if (!newSession) return;
-    if (newSession.mode === 'result' || (newSession.rouletteResult?.length ?? 0) <= 1) {
-      router.push('/result');
-    } else {
+    // 다음 단계별 라우팅
+    if (newSession.mode === 'rouletteMenu') {
+      // 메뉴 룰렛 단계로 진입: 같은 화면에서 사용자가 한 번 더 스핀
+      return;
+    }
+    if (newSession.mode === 'voting') {
       router.push('/vote');
+      return;
+    }
+    if (newSession.mode === 'result') {
+      router.push('/result');
+      return;
     }
   };
 
