@@ -1,7 +1,7 @@
 'use client';
 
-import { StartFormInput, LunchSession } from '../types';
-import { buildCandidates, confirmVote, finalizeResult, shouldFinishVoting, spinRoulette, toggleCurrentSelection } from '../lib/lunchLogic';
+import { StartFormInput, LunchSession, LunchCategory } from '../types';
+import { buildCandidates, buildCategoryCandidates, buildMenuCandidatesByCategory, confirmVote, finalizeResult, pickOne, shouldFinishVoting, spinRoulette, toggleCurrentSelection } from '../lib/lunchLogic';
 
 const STORAGE_KEY = 'lunch-session';
 
@@ -40,18 +40,28 @@ export const useLunchSession = () => {
     }
   };
 
-  // 시작 설정 저장 및 후보 생성 → roulette 단계로
+  // 시작 설정 저장 및 후보 생성 → rouletteCategory 단계로
   const startSession = (input: StartFormInput) => {
     const session = loadSession();
-    const candidates = buildCandidates(input.categories, input.maxCandidates);
+    const cats = buildCategoryCandidates(input.categories);
 
     const newSession: LunchSession = {
       ...session,
-      mode: 'roulette',
-      candidates,
+      mode: 'rouletteCategory',
+      candidates: cats.map(c => ({
+        id: `cat:${c}`,
+        name: c,
+        description: '',
+        imageUrl: 'https://picsum.photos/300/200?random=101',
+        rating: 0,
+        address: '',
+        category: c,
+      })),
       participants: input.participants,
       maxCandidates: input.maxCandidates,
       categories: input.categories,
+      address: input.address,
+      rouletteMode: input.rouletteMode,
       completedVoters: 0,
       currentSelectionId: null,
       sessionId: Date.now().toString(),
@@ -61,31 +71,78 @@ export const useLunchSession = () => {
     return newSession;
   };
 
-  // 룰렛 실행 → 단일이면 즉시 result, 다수면 voting
+  // 룰렛 실행: 카테고리 → (옵션) 메뉴 → 투표/결과
   const runRoulette = () => {
     const session = loadSession();
-    const result = spinRoulette(session.candidates);
+    // 1) 카테고리 단계 → 다음 단계 준비
+    if (session.mode === 'rouletteCategory') {
+      const picked = pickOne(session.candidates);
+      const pickedCategory = (picked.category || 'etc') as LunchCategory;
+      const nextCandidates = session.rouletteMode === 'categoryOnly'
+        ? buildCandidates([pickedCategory], session.maxCandidates || 5)
+        : buildMenuCandidatesByCategory(pickedCategory, session.maxCandidates || 5);
 
-    if (!Array.isArray(result)) {
-      const newSession: LunchSession = {
+      if (session.rouletteMode === 'categoryOnly') {
+        // 바로 투표로 이동: 후보는 rouletteResult로 세팅
+        const nextSession: LunchSession = {
+          ...session,
+          mode: 'voting',
+          selectedCategory: pickedCategory,
+          candidates: nextCandidates,
+          rouletteResult: nextCandidates,
+          currentSelectionId: null,
+          completedVoters: 0,
+        };
+        saveSession(nextSession);
+        return nextSession;
+      }
+
+      // 메뉴 룰렛 단계로
+      const nextSession: LunchSession = {
         ...session,
-        mode: 'result',
-        finalResult: result,
-        rouletteResult: [result],
+        mode: 'rouletteMenu',
+        selectedCategory: pickedCategory,
+        candidates: nextCandidates,
+        rouletteResult: [],
       };
-      saveSession(newSession);
-      return newSession;
+      saveSession(nextSession);
+      return nextSession;
     }
 
-    const newSession: LunchSession = {
-      ...session,
-      mode: 'voting',
-      rouletteResult: result,
-      currentSelectionId: null,
-      completedVoters: 0,
-    };
-    saveSession(newSession);
-    return newSession;
+    // 2) 메뉴 단계 → 투표/결과
+    if (session.mode === 'rouletteMenu') {
+      const result = spinRoulette(session.candidates);
+      if (!Array.isArray(result)) {
+        const nextSession: LunchSession = {
+          ...session,
+          mode: 'result',
+          finalResult: result,
+          rouletteResult: [result],
+        };
+        saveSession(nextSession);
+        return nextSession;
+      }
+      const nextSession: LunchSession = {
+        ...session,
+        mode: 'voting',
+        rouletteResult: result,
+        currentSelectionId: null,
+        completedVoters: 0,
+      };
+      saveSession(nextSession);
+      return nextSession;
+    }
+
+    // 3) 이전 로직 유지(호환)
+    const result = spinRoulette(session.candidates);
+    if (!Array.isArray(result)) {
+      const nextSession: LunchSession = { ...session, mode: 'result', finalResult: result, rouletteResult: [result] };
+      saveSession(nextSession);
+      return nextSession;
+    }
+    const nextSession: LunchSession = { ...session, mode: 'voting', rouletteResult: result, currentSelectionId: null, completedVoters: 0 };
+    saveSession(nextSession);
+    return nextSession;
   };
 
   // 현재 선택 토글

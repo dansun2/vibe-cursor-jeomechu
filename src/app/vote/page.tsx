@@ -2,7 +2,7 @@
 
 import { VotingScreen } from '@/features/lunch-recommendation/components/VotingScreen';
 
-export default async function Page(_: Promise<{ params: {} }>) {
+export default function Page() {
   return <VotingScreen />;
 }
 

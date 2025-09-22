@@ -2,7 +2,7 @@
 
 import { ResultScreen } from '@/features/lunch-recommendation/components/ResultScreen';
 
-export default async function Page(_: Promise<{ params: {} }>) {
+export default function Page() {
   return <ResultScreen />;
 }
 

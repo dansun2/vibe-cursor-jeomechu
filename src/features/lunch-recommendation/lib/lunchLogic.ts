@@ -23,6 +23,29 @@ export const spinRoulette = (
   return shuffled.slice(0, Math.min(count, candidates.length));
 };
 
+// 카테고리 룰렛 후보 (카테고리 자체를 섹터로)
+export const buildCategoryCandidates = (categories: LunchCategory[]): LunchCategory[] => {
+  // v1: 카테고리 룰렛에는 전달된 카테고리를 전부 포함시킨다
+  // (WaitingScreen에서 기본값으로 ALL_CATEGORIES를 넣어 전체가 나오도록 함)
+  const uniq = Array.from(new Set(categories));
+  return uniq.length ? uniq : ['etc'];
+};
+
+// 메뉴 룰렛 후보 (선택된 카테고리 내에서 메뉴 추출)
+export const buildMenuCandidatesByCategory = (
+  category: LunchCategory,
+  maxCandidates: number
+): Restaurant[] => {
+  const filtered = MOCK_RESTAURANTS.filter(r => (r.category || 'etc') === category);
+  const shuffled = [...filtered].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, Math.max(1, maxCandidates));
+};
+
+// 단일 당첨 선택 (룰렛이 하나를 가리키는 경우)
+export const pickOne = <T>(list: T[]): T => {
+  return list[Math.floor(Math.random() * list.length)];
+};
+
 // 순수 함수: 현재 선택 토글
 export const toggleCurrentSelection = (
   prevSelectionId: string | null | undefined,

@@ -24,8 +24,10 @@ export interface Vote {
   timestamp: number;
 }
 
+export type RouletteMode = 'categoryOnly' | 'categoryAndMenu';
+
 export interface LunchSession {
-  mode: 'waiting' | 'roulette' | 'voting' | 'result';
+  mode: 'waiting' | 'rouletteCategory' | 'rouletteMenu' | 'voting' | 'result';
   candidates: Restaurant[];
   rouletteResult: Restaurant[];
   votes: Vote[];
@@ -37,6 +39,10 @@ export interface LunchSession {
   categories?: LunchCategory[];
   completedVoters?: number;
   currentSelectionId?: string | null;
+  address?: string;
+  rouletteMode?: RouletteMode;
+  selectedCategory?: LunchCategory;
+  lastSpinTargetId?: string;
 }
 
 export type LunchMode = LunchSession['mode'];
@@ -45,6 +51,8 @@ export const StartFormSchema = z.object({
   participants: z.number().int().min(1).max(50),
   maxCandidates: z.number().int().min(1).max(10),
   categories: z.array(z.custom<LunchCategory>()).min(1),
+  address: z.string().min(1),
+  rouletteMode: z.custom<RouletteMode>(),
 });
 
 export type StartFormInput = z.infer<typeof StartFormSchema>;

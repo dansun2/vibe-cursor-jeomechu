@@ -11,6 +11,6 @@ function HomeClient() {
   return null;
 }
 
-export default async function Page(_: Promise<{ params: {} }>) {
+export default function Page() {
   return <HomeClient />;
 }

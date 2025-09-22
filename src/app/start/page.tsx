@@ -2,7 +2,7 @@
 
 import { WaitingScreen } from '@/features/lunch-recommendation/components/WaitingScreen';
 
-export default async function Page(_: Promise<{ params: {} }>) {
+export default function Page() {
   return <WaitingScreen />;
 }
 
