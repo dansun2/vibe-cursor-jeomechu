@@ -7,21 +7,56 @@ import { Card } from '@/components/ui/card';
 import { useLunchStore } from '@/lib/store';
 import { Restaurant } from '../types';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
 
 export const VotingScreen = () => {
   const { session, actions } = useLunchStore();
   const router = useRouter();
   const [selectedRestaurant, setSelectedRestaurant] = useState<string>('');
+  const { toast } = useToast();
+
+  // URL 복사 함수
+  const copyShareLink = async () => {
+    const currentUrl = window.location.href;
+    
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(currentUrl);
+      } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = currentUrl;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+      
+      toast({
+        title: "링크가 복사되었습니다",
+        description: "다른 사람들에게 공유해보세요!",
+      });
+    } catch (err) {
+      toast({
+        title: "복사 실패",
+        description: "링크 복사에 실패했습니다. 다시 시도해주세요.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleSelect = (restaurantId: string) => {
-    setSelectedRestaurant(prev => (prev === restaurantId ? '' : restaurantId));
+    setSelectedRestaurant(restaurantId);
     actions.selectCandidate(restaurantId);
   };
 
   const handleConfirm = () => {
-    const newSession = actions.confirmCurrentVoter();
-    if (newSession.mode === 'result') {
-      router.push('/result');
+    if (selectedRestaurant) {
+      // 단일 사용자 투표이므로 선택 즉시 확정하고 결과 페이지로 이동
+      const newSession = actions.confirmCurrentVoter();
+      if (newSession.mode === 'result') {
+        router.push('/result');
+      }
     }
   };
 
@@ -43,7 +78,16 @@ export const VotingScreen = () => {
     <div className="space-y-8">
       <div className="text-center">
         <h2 className="text-2xl font-bold mb-2">투표 진행 중</h2>
-        <p className="text-gray-600">메뉴를 선택하고 투표해주세요</p>
+        <p className="text-gray-600 mb-4">메뉴를 선택하고 투표해주세요</p>
+        
+        {/* 공유 버튼 */}
+        <Button
+          variant="outline"
+          onClick={copyShareLink}
+          className="mb-4"
+        >
+          🔗 링크 복사하기
+        </Button>
       </div>
 
       {/* 후보 메뉴 카드들 */}
@@ -81,8 +125,7 @@ export const VotingScreen = () => {
         ))}
       </div>
 
-      {/* v0: 단일 디바이스 순차 투표. 외부 링크/QR 미사용 */}
-
+      {/* 단일 사용자 투표이므로 확정 버튼 활성화 */}
       <div className="text-center">
         <Button
           size="lg"

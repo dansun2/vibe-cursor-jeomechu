@@ -4,12 +4,23 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useLunchStore } from '@/lib/store';
+import { useRouter } from 'next/navigation';
 
 export const ResultScreen = () => {
   const { session, actions } = useLunchStore();
+  const router = useRouter();
 
   const handleReset = () => {
     actions.resetSession();
+    router.push('/start');
+  };
+
+  const handleRevote = () => {
+    // 현재 투표 결과를 취소하고 다시 투표 화면으로 돌아감
+    // const resetSession = { ...session, mode: 'voting' as const, currentSelectionId: null, votes: [] };
+    // store에 업데이트 (간단한 구현)
+    actions.resetVotingState();
+    router.push('/vote');
   };
 
   const handleExportCSV = () => {
@@ -85,6 +96,13 @@ export const ResultScreen = () => {
       {/* 전체 결과 */}
       <div>
         <h3 className="text-xl font-semibold mb-4">전체 투표 결과</h3>
+        <div className="mb-4 p-3 bg-blue-50 rounded">
+          <p className="text-sm text-blue-700">
+            전체 인원: {session.participants || 1}명 | 
+            완료된 투표: {session.completedVoters || 0}명 | 
+            남은 투표: {Math.max(0, (session.participants || 1) - (session.completedVoters || 0))}명
+          </p>
+        </div>
         <div className="space-y-2">
           {session.rouletteResult.map((restaurant) => {
             const votes = session.votes.filter(v => v.restaurantId === restaurant.id).length;
@@ -115,10 +133,17 @@ export const ResultScreen = () => {
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <Button
           size="lg"
+          onClick={handleRevote}
+          className="bg-blue-500 hover:bg-blue-600"
+        >
+          다시 투표하기
+        </Button>
+        <Button
+          size="lg"
           onClick={handleReset}
           className="bg-gray-500 hover:bg-gray-600"
         >
-          다시 하기
+          다시 추천받기
         </Button>
         <Button
           size="lg"

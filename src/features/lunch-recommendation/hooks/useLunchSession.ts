@@ -1,7 +1,16 @@
 'use client';
 
 import { StartFormInput, LunchSession, LunchCategory } from '../types';
-import { buildCandidates, buildCategoryCandidates, buildMenuCandidatesByCategory, confirmVote, finalizeResult, pickOne, shouldFinishVoting, spinRoulette, toggleCurrentSelection } from '../lib/lunchLogic';
+import {
+  buildCandidates,
+  buildCategoryCandidates,
+  buildMenuCandidatesByCategory,
+  confirmVote,
+  finalizeResult,
+  pickOne,
+  spinRoulette,
+  toggleCurrentSelection,
+} from '../lib/lunchLogic';
 import { getCategoryLabel } from '../lib/mockData';
 
 const STORAGE_KEY = 'lunch-session';
@@ -75,16 +84,17 @@ export const useLunchSession = () => {
   // 룰렛 실행: 카테고리 → (옵션) 메뉴 → 투표/결과
   const runRoulette = () => {
     const session = loadSession();
-    // 1) 카테고리 단계 → 다음 단계 준비
+    // 1) 카테고리 단계
     if (session.mode === 'rouletteCategory') {
       const picked = pickOne(session.candidates);
       const pickedCategory = (picked.category || 'etc') as LunchCategory;
-      const nextCandidates = session.rouletteMode === 'categoryOnly'
-        ? buildCandidates([pickedCategory], session.maxCandidates || 5)
-        : buildMenuCandidatesByCategory(pickedCategory, session.maxCandidates || 5);
+      const nextCandidates =
+        session.rouletteMode === 'categoryOnly'
+          ? buildCandidates([pickedCategory], session.maxCandidates || 5)
+          : buildMenuCandidatesByCategory(pickedCategory, session.maxCandidates || 5);
 
       if (session.rouletteMode === 'categoryOnly') {
-        // 목데이터 투표로 바로 이동 대신 추천 페이지 흐름으로 연결하기 위해 메뉴 룰렛 모드로 전환
+        // 바로 투표로 이동: 후보는 rouletteResult로 세팅
         const nextSession: LunchSession = {
           ...session,
           mode: 'rouletteMenu',
@@ -112,9 +122,8 @@ export const useLunchSession = () => {
       return nextSession;
     }
 
-    // 2) 메뉴 단계 → 투표/결과
+    // 2) 메뉴 단계
     if (session.mode === 'rouletteMenu') {
-      // v1 스펙: 메뉴 단계에서는 단일 최종 당첨으로 바로 결과 페이지
       const result = pickOne(session.candidates);
       const nextSession: LunchSession = {
         ...session,
@@ -127,19 +136,30 @@ export const useLunchSession = () => {
       return nextSession;
     }
 
-    // 3) 이전 로직 유지(호환)
+    // 3) 기존 로직
     const result = spinRoulette(session.candidates);
     if (!Array.isArray(result)) {
-      const nextSession: LunchSession = { ...session, mode: 'result', finalResult: result, rouletteResult: [result] };
+      const nextSession: LunchSession = {
+        ...session,
+        mode: 'result',
+        finalResult: result,
+        rouletteResult: [result],
+      };
       saveSession(nextSession);
       return nextSession;
     }
-    const nextSession: LunchSession = { ...session, mode: 'voting', rouletteResult: result, currentSelectionId: null, completedVoters: 0 };
+    const nextSession: LunchSession = {
+      ...session,
+      mode: 'voting',
+      rouletteResult: result,
+      currentSelectionId: null,
+      completedVoters: 0,
+    };
     saveSession(nextSession);
     return nextSession;
   };
 
-  // 현재 선택 토글
+  // 후보 선택
   const selectCandidate = (candidateId: string) => {
     const session = loadSession();
     const nextSelection = toggleCurrentSelection(session.currentSelectionId, candidateId);
@@ -148,7 +168,7 @@ export const useLunchSession = () => {
     return newSession;
   };
 
-  // 현재 사용자 확정 → 집계하고 다음 사용자로
+  // 투표 확정
   const confirmCurrentVoter = () => {
     const session = loadSession();
     if (!session.currentSelectionId) return session;
@@ -156,31 +176,36 @@ export const useLunchSession = () => {
     const nextVotes = confirmVote(session.votes, session.currentSelectionId);
     const completed = (session.completedVoters || 0) + 1;
 
-    if (shouldFinishVoting(session.participants || 1, completed)) {
-      const winnerId = finalizeResult(nextVotes, session.rouletteResult, session.rouletteResult[0]?.id);
-      const final = session.rouletteResult.find(r => r.id === winnerId) || session.rouletteResult[0];
-      const newSession: LunchSession = {
-        ...session,
-        votes: nextVotes,
-        completedVoters: completed,
-        mode: 'result',
-        finalResult: final,
-        currentSelectionId: null,
-      };
-      saveSession(newSession);
-      return newSession;
-    }
-
+    const winnerId = finalizeResult(nextVotes, session.rouletteResult, session.rouletteResult[0]?.id);
+    const final = session.rouletteResult.find(r => r.id === winnerId) || session.rouletteResult[0];
     const newSession: LunchSession = {
       ...session,
       votes: nextVotes,
       completedVoters: completed,
+      mode: 'result',
+      finalResult: final,
       currentSelectionId: null,
     };
     saveSession(newSession);
     return newSession;
   };
 
+  // 투표만 리셋
+  const resetVotingState = () => {
+    const session = loadSession();
+    const newSession: LunchSession = {
+      ...session,
+      mode: 'voting',
+      votes: [],
+      completedVoters: 0,
+      currentSelectionId: null,
+      finalResult: undefined,
+    };
+    saveSession(newSession);
+    return newSession;
+  };
+
+  // 세션 전체 리셋
   const resetSession = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem(STORAGE_KEY);
@@ -209,6 +234,7 @@ export const useLunchSession = () => {
     runRoulette,
     selectCandidate,
     confirmCurrentVoter,
+    resetVotingState,
     resetSession,
     startVotingWithCandidates,
   };

@@ -9,6 +9,7 @@ interface LunchStore {
     runRoulette: () => LunchSession;
     selectCandidate: (restaurantId: string) => LunchSession;
     confirmCurrentVoter: () => LunchSession;
+    resetVotingState: () => LunchSession;
     resetSession: () => LunchSession;
     refreshSession: () => void;
     startVotingWithCandidates: (candidates: LunchSession['candidates']) => LunchSession;
@@ -49,6 +50,14 @@ export const useLunchStore = create<LunchStore>((set, get) => ({
     confirmCurrentVoter: () => {
       const { confirmCurrentVoter } = useLunchSession();
       const newSession = confirmCurrentVoter();
+      set({ session: newSession });
+      return newSession;
+    },
+
+
+    resetVotingState: () => {
+      const { resetVotingState } = useLunchSession();
+      const newSession = resetVotingState();
       set({ session: newSession });
       return newSession;
     },
